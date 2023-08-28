@@ -1,6 +1,6 @@
 # Spreadsheet engine
 
-This is an attempt at building a spreadhsheet engine, akin to projects like the [OnlyOffice](https://onlyoffice.com).
+This is an attempt at building a spreadhsheet engine entirely using the canvas.
 
 ## Basic features
 

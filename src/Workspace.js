@@ -20,8 +20,6 @@ export default class Workspace {
             }
         });
 
-        const canvas = document.createElement("canvas");
-        spreadsheet.render(canvas);
-        elem.appendChild(canvas);
+        spreadsheet.render(elem);
     }
 }

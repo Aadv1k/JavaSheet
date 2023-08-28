@@ -10,9 +10,12 @@
     <div id="root"></div>
 </body>
 
-<script class="ss__script" defer type="module">import { Spreadsheet } from "/src/index.js"
-const ss = new Spreadsheet();
-ss.bind(document.getElementById("root"))
+<script class="ss__script" defer type="module">import Workspace from "/src/Workspace.js"
+const ws = new Workspace({
+  width: 600,
+  height: 400
+});
+ws.render(document.getElementById("root"))
 </script>
 </html>
 

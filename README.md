@@ -1,7 +1,6 @@
 # Spreadsheet engine
 
 This is an attempt at building a lightweight spreadsheet engine that uses the canvas for the rendering.
-
 this is a **WIP** and things may break or change ay anytime, if this happens feel free to raise an issue.
 
 ## Usage

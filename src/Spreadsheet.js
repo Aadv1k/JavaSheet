@@ -1,7 +1,7 @@
 export default class Spreadsheet {
     constructor(config) {
-        this.cellWidth = config.cellWidth || 60;
-        this.cellHeight = config.cellHeight || 15;
+        this.cellWidth = config.cellWidth || 90;
+        this.cellHeight = config.cellHeight || 20;
 
         this.height = config.height;
         this.width = config.width + this.cellWidth / 2;
@@ -10,26 +10,92 @@ export default class Spreadsheet {
         this.maxCellY = 100;
 
         this.previouslySelectedCell = null;
+        this.cellMap = new Map();
+
+        this.cellMap.set("0,0", "S No");
+        this.cellMap.set("1,0", "Name");
+        this.cellMap.set("2,0", "Age");
+        this.cellMap.set("3,0", "Profession");
+
+        this.config = config;
     }
 
     drawSheet(context) {
-        context.strokeStyle = "#AAAAAA";
         context.lineWidth = 1;
         context.imageSmoothingEnabled = false;
-        context.font = "48px serif";
 
         for (let i = 0; i < this.maxCellY; i++) {
             for (let j = 0; j < this.maxCellX; j++) {
+                const cellContent = this.cellMap.get(`${j},${i}`);
+                if (cellContent != undefined) {
+                    this.#renderCellWithContent(context, j, i, cellContent);
+                    continue;
+                }
+
                 this.#renderCell(context, j, i);
             }
         }
     }
+
+
+    #truncateText(text, maxInPx) {
+        // Create an HTML element to measure text width
+        const measureElement = document.createElement('span');
+        measureElement.style.visibility = 'hidden';
+        measureElement.style.position = 'absolute';
+        measureElement.style.whiteSpace = 'nowrap';
+        measureElement.innerText = text;
+
+        document.body.appendChild(measureElement);
+
+        if (measureElement.offsetWidth <= maxInPx) {
+            document.body.removeChild(measureElement);
+            return text;
+        } else {
+            let truncatedText = text;
+            while (measureElement.offsetWidth > maxInPx) {
+                truncatedText = truncatedText.slice(0, -1);
+                measureElement.innerText = truncatedText + '...';
+            }
+            document.body.removeChild(measureElement);
+            return truncatedText + '...';
+        }
+    }
+
+
+
+#renderCellWithContent(context, x, y, content) {
+    const xx = x * this.cellWidth + 0.5;
+    const yy = y * this.cellHeight + 0.5;
+    const right = xx + this.cellWidth;
+    const bottom = yy + this.cellHeight;
+
+    context.font = "12px serif";
+    context.strokeStyle = "black";
+
+    // Adjusted coordinates used for accessing cell content in cellMap
+    const cellContent = this.cellMap.get(`${x},${y}`);
+    if (cellContent !== undefined) {
+        context.textAlign = 'center';
+        context.fillText(this.#truncateText(cellContent, this.cellWidth), xx + this.cellWidth / 2, yy + this.cellHeight / 1.5);
+    }
+
+    context.beginPath();
+    context.moveTo(xx, yy);
+    context.lineTo(right, yy);
+    context.lineTo(right, bottom);
+    context.lineTo(xx, bottom);
+    context.closePath();
+    context.stroke();
+}
 
     #renderCell(context, x, y) {
         const xx = x * this.cellWidth + 0.5;
         const yy = y * this.cellHeight + 0.5;
         const right = xx + this.cellWidth;
         const bottom = yy + this.cellHeight;
+
+        context.strokeStyle = "#AAAAAA";
 
         context.beginPath();
         context.moveTo(xx, yy);
@@ -50,8 +116,9 @@ export default class Spreadsheet {
     }
 
     drawSelectedCell(context, x, y) {
-        context.fillStyle = "skyblue";
-        context.fillRect(x + 0.5, y + 0.5, this.cellWidth, this.cellHeight);
+        context.strokeStyle = "skyblue";
+        context.lineWidth = 2; // You can adjust the line width as needed
+        context.strokeRect(x + 0.5, y + 0.5, this.cellWidth - 1, this.cellHeight - 1);
     }
 
     drawSelectionBox(context, x, y, width, height) {
@@ -70,10 +137,8 @@ export default class Spreadsheet {
 
 
         const context = canvas.getContext("2d");
-        
 
         this.drawSheet(context);
-
 
         const selectionBox = document.createElement("div");
         selectionBox.classList.add("selection-box");
@@ -89,12 +154,17 @@ export default class Spreadsheet {
             startX = event.clientX;
             startY = event.clientY;
 
+            // Adjusted coordinates for determining the selected cell
             const xx = this.#clamp(startX, this.cellWidth);
             const yy = this.#clamp(startY, this.cellHeight);
 
+            const selectedCellContent = this.cellMap.get(`${Math.floor(xx / this.cellWidth)},${Math.floor(yy / this.cellHeight)}`);
 
-            this.drawSelectedCell(context, xx, yy);
+            this.config?.onClick?.(selectedCellContent);
 
+            if (selectedCellContent !== undefined) {
+                //this.drawSelectedCell(context, xx, yy);
+            }
             selectionBox.style.display = "block";
 
             startColumn = Math.floor(startX / this.cellWidth);
@@ -134,7 +204,6 @@ export default class Spreadsheet {
         });
 
         
-
         elem.addEventListener("mouseup", () => {
             isDragging = false;
         });

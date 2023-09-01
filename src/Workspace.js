@@ -17,6 +17,9 @@ export default class Workspace {
             height: this.height,
             onDrag: (e) => {
                 console.log(spreadsheet.getSelected());
+            },
+            onClick: (text) => {
+                console.log(text);
             }
         });
 

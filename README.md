@@ -1,5 +1,8 @@
 # JavaSheet
 
+>**IMPORTANT**
+>This project is defunct. The initial idea was cool but I have lost interest and hence will no longer be continuing it 
+
 This is an attempt at building a lightweight spreadsheet engine that uses the canvas for the rendering.
 
 this is a **WIP** and things may break or change ay anytime, if this happens feel free to raise an issue.
